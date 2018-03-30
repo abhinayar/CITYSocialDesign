@@ -1,10 +1,13 @@
 {
-  "name": "TwitterBot",
+  "name": "YUAGTwitterBot",
   "version": "1.0.0",
+  "engines": {
+    "node": "8.9.x"
+  },
   "description": "Twitter bot for YUAG: posts YUAG images from collection periodically to Twitter. Created by Abhi Nayar for Tsai CITY and Dwight Hall. March 2018.",
   "main": "index.js",
   "scripts": {
-    "start": "npm start",
+    "start": "node app",
     "prod": "NODE_ENV=production node app"
   },
   "repository": {
