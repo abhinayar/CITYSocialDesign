@@ -21,74 +21,6 @@ firebaseDB = firebaseApp.database();
 var app = express();
 
 
-function addToDB() {
-  for (var i = 3000; i < 3500; i++) {
-    (function(i) {
-      var url = 'https://artgallery.yale.edu/collections/objects/' + i;
-      console.log(url)
-      
-      request(url, function(err, response, html) {
-        
-        console.log('Started request/received resp');
-        
-        if (!err) {
-          // Setup Cheerio to scrape
-          var $ = cheerio.load(html);
-          // Setup vars.
-          var imageUrl, 
-          artistName, 
-          pieceName, 
-          date, 
-          description;
-          
-          var json = {
-            imageUrl : "",
-            artistName : "",
-            pieceName : "",
-            date : "",
-            description : ""
-          }
-          
-          // #block-system-main is the main content wrapper for the piece content
-          // Extract the values and data
-          $('#block-system-main').filter(function() {
-            // Set data to $(this)
-            var data = $(this);
-            
-            // Find the individual pieces of data
-            // 1. Image URL
-            imageUrl = data.find('.field-name-object-images img').attr('src')
-            json.imageUrl = imageUrl
-            // 2. Artist Name
-            artistName = data.find('.field-name-object-artists .field').text()
-            json.artistName = artistName
-            // 3. Piece Name
-            pieceName = data.find('.field-name-title h1').text();
-            json.pieceName = pieceName;
-            // 4. Date
-            date = data.find('.field-name-field-dated .field-item').text()
-            json.date = date
-            // 5. Description
-            description = data.find('.read-more-excerpt .field-item').text()
-            json.description = description        
-          })
-          
-          // Check if imageUrl is undefined
-          if (json.imageUrl !== undefined && typeof(json.imageUrl) !== undefined) {
-            firebaseDB.ref('/' + i).set(json, function(err) {
-              if (err) console.log(err);
-              else console.log('Added');
-            });
-          }
-        } else {
-          console.log('An error occured');
-          throw(err);
-        }
-      })
-    })(i)
-  }
-} 
-
 // Setup Twitter bot
 var twit = require('twit'),
 config = {
@@ -279,6 +211,76 @@ var http = require("http");
   setInterval(function() {
     http.get("http://yuag-bot.herokuapp.com");
 }, 300000); // every 5 minutes (300000)
+
+app.get('/addToDB', function(req, res) {
+  function addToDB() {
+    for (var i = 3500; i < 3700; i++) {
+      (function(i) {
+        var url = 'https://artgallery.yale.edu/collections/objects/' + i;
+        console.log(url)
+        
+        request(url, function(err, response, html) {
+          
+          console.log('Started request/received resp');
+          
+          if (!err) {
+            // Setup Cheerio to scrape
+            var $ = cheerio.load(html);
+            // Setup vars.
+            var imageUrl, 
+            artistName, 
+            pieceName, 
+            date, 
+            description;
+            
+            var json = {
+              imageUrl : "",
+              artistName : "",
+              pieceName : "",
+              date : "",
+              description : ""
+            }
+            
+            // #block-system-main is the main content wrapper for the piece content
+            // Extract the values and data
+            $('#block-system-main').filter(function() {
+              // Set data to $(this)
+              var data = $(this);
+              
+              // Find the individual pieces of data
+              // 1. Image URL
+              imageUrl = data.find('.field-name-object-images img').attr('src')
+              json.imageUrl = imageUrl
+              // 2. Artist Name
+              artistName = data.find('.field-name-object-artists .field').text()
+              json.artistName = artistName
+              // 3. Piece Name
+              pieceName = data.find('.field-name-title h1').text();
+              json.pieceName = pieceName;
+              // 4. Date
+              date = data.find('.field-name-field-dated .field-item').text()
+              json.date = date
+              // 5. Description
+              description = data.find('.read-more-excerpt .field-item').text()
+              json.description = description        
+            })
+            
+            // Check if imageUrl is undefined
+            if (json.imageUrl !== undefined && typeof(json.imageUrl) !== undefined) {
+              firebaseDB.ref('/' + i).set(json, function(err) {
+                if (err) console.log(err);
+                else console.log('Added');
+              });
+            }
+          } else {
+            console.log('An error occured');
+            throw(err);
+          }
+        })
+      })(i)
+    }
+  } addToDB() 
+})
 
 // Make app listen + log
 app.listen(8000);

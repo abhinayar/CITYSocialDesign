@@ -7,7 +7,21 @@
     "start": "npm start",
     "prod": "NODE_ENV=production node app"
   },
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abhinayar/CITYSocialDesign.git"
+  },
+  "keywords": [
+    "twitter",
+    "bot",
+    "yale",
+    "university",
+    "yuag",
+    "abhi",
+    "nayar",
+    "Tsai",
+    "CITY"
+  ],
   "author": "Abhi Nayar",
   "license": "ISC",
   "dependencies": {
