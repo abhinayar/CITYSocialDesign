@@ -10,7 +10,7 @@ require('dotenv').config();
 
 // Setup firebase
 var firebase = require('firebase-admin');
-var serviceAccount = require('./firebase-config.json');
+var serviceAccount = require('./app/firebase-config.json');
 var firebaseApp = firebase.initializeApp({
   credential : firebase.credential.cert(serviceAccount),
   databaseURL : process.env.FIREBASE_DATABASE_URL
