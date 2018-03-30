@@ -3,7 +3,7 @@
 By Abhi Nayar | March 2018
 
 ## About
-This is a twitter bot that posts one image + metadata from YUAG collection (here)[https://artgallery.yale.edu/collections] every 12 hours. It was designed by Abhi Nayar, Yale '18, in collaboration with Ony Obiocha for Tsai CITY + Dwight Hall @ Yale. It should only post images in the public domain but if there are any issues please let the developer know at abhishek[dot]nayar[at]yale[dot]edu.
+This is a twitter bot that posts one image + metadata from YUAG collection https://artgallery.yale.edu/collections every 12 hours. It was designed by Abhi Nayar, Yale '18, in collaboration with Ony Obiocha for Tsai CITY + Dwight Hall @ Yale. It should only post images in the public domain but if there are any issues please let the developer know at abhishek[dot]nayar[at]yale[dot]edu.
 
 ## How It Works
 1. Uses Cheerio (server jQuery) to scrape https://artgallery.yale.edu/collections/ + INDEX NUMBER
