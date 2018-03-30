@@ -196,7 +196,7 @@ function postToTwitter(cb) {
     });
 }
 
-//Run the post to Twitter functions
+// Run the post to Twitter functions
 var interval = 43200000; // 30 seconds
 setInterval(function() {
   postToTwitter(twitterPostCallback)
@@ -215,7 +215,7 @@ var http = require("http");
 
 app.get('/addToDB', function(req, res) {
   function addToDB() {
-    for (var i = 3500; i < 3700; i++) {
+    for (var i = 3900; i < 4200; i++) {
       (function(i) {
         var url = 'https://artgallery.yale.edu/collections/objects/' + i;
         console.log(url)
