@@ -3,7 +3,8 @@ var express = require('express'),
 request = require('request').defaults({ encoding: null }),
 fs = require('fs'),
 cheerio = require('cheerio'),
-waitUntil = require('wait-until');
+waitUntil = require('wait-until'),
+port = process.env.PORT || 8000;
 
 // Process.env
 require('dotenv').config();
@@ -283,9 +284,12 @@ app.get('/addToDB', function(req, res) {
 })
 
 // Make app listen + log
-app.listen(8000);
-console.log('Listening on port 8000');
-exports = module.exports = app;
-
+var server = app.listen(port, function(err) {
+  if (err) {
+    console.log('App listening error ', err)
+  } else {
+    console.log('App running at ', port)
+  }
+});
 
 
