@@ -21,13 +21,12 @@ firebaseDB = firebaseApp.database();
 // Setup app to use express
 var app = express();
 
-
 // Setup Twitter bot
 var twit = require('twit'),
 config = {
-  consumer_key: process.env.TWITTER_KEY,  
+  consumer_key: process.env.TWITTER_KEY,
   consumer_secret: process.env.TWITTER_SECRET,
-  access_token: process.env.TWITTER_ACCESS_TOKEN,  
+  access_token: process.env.TWITTER_ACCESS_TOKEN,
   access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
   timeout_ms: 60*1000
 },
@@ -51,7 +50,7 @@ function postToTwitter(cb) {
   // First we get a random index
   var randomIndex = getRandomIndex();
   console.log(randomIndex);
-  
+
   // Now we want to get the data from Firebase and see if we've posted it before
   firebaseDB.ref('/' + randomIndex).once('value')
     .then(function(snap) {
@@ -69,27 +68,27 @@ function postToTwitter(cb) {
           } else {
             // There IS an image URL
             // We should be good to go
-            
+
             // Get the vars. from the item
             var artistName = item.artistName,
             date = item.date,
             description = item.description,
             pieceName = item.pieceName;
-            
+
             // If there is no piece name we don't want to post this
             if (!pieceName || pieceName.length == 0 || pieceName == "") cb(false);
-            
+
             // Update any that are unlisted/unknown
             if (!artistName || artistName.length == 0 || artistName == "") artistName = 'Unknown/Unlisted'
             if (!description || description.length == 0 || description == "") description = null;
             if (!date || date.length == 0 || date == "") date = "Unknown/Unlisted"
-            
+
             // Let's post the image to twitter
             // 1st: Save the image locally
             // 2nd: Upload media to Twitter
             // 3rd: Post the media to Twitter
             // 4th: Delete locally saved image
-            
+
             // Begin request
             request(imageUrl)
               .pipe(fs.createWriteStream('curPost.jpg')).on('close', function(err) {
@@ -103,7 +102,7 @@ function postToTwitter(cb) {
                   // Switch saved image to base64 stream
                   var b64content = fs.readFileSync('curPost.jpg', { encoding: 'base64' })
                   // Upload media to Twitter
-                  Twitter.post('media/upload', { media_data: b64content }, 
+                  Twitter.post('media/upload', { media_data: b64content },
                   function (err, data, response) {
                     // If there was an error getting the media id, log it
                     if(err) {
@@ -115,17 +114,17 @@ function postToTwitter(cb) {
                       // Now add the meta data
                       var mediaIdStr = data.media_id_string
                       var altText = pieceName
-                      var meta_params = { 
-                        media_id: mediaIdStr, 
-                        alt_text: { text: altText } 
+                      var meta_params = {
+                        media_id: mediaIdStr,
+                        alt_text: { text: altText }
                       }
-                      
+
                       // Post the media to Twitter
                       Twitter.post('media/metadata/create', meta_params, function (err, data, response) {
                         // If there was no error, continue
                         if (!err) {
-                          // Now we can reference the media and post a tweet (media will attach to the tweet) 
-                          
+                          // Now we can reference the media and post a tweet (media will attach to the tweet)
+
                           // Setup tweet paramters
                           var status = "Piece: " + pieceName;
                           // Add artist + date
@@ -135,13 +134,13 @@ function postToTwitter(cb) {
                           if (description) status+= "\nDescription: " + description
                           // Add hashtags
                           status+= "\n\n#art #yuag #yuagbot #yale #university #museum #gallery"
-                          
+
                           // Create param object
-                          var params = { 
-                            status: status, 
-                            media_ids: [mediaIdStr] 
+                          var params = {
+                            status: status,
+                            media_ids: [mediaIdStr]
                           }
-                          
+
                           // Post the full tweet to Twitter
                           Twitter.post('statuses/update', params, function (err, data, response) {
                             // If there was an error posting, throw and return false
@@ -158,17 +157,17 @@ function postToTwitter(cb) {
                                 // If there was an error here, we still return true, just log it
                                 if (err) console.log('There was an error deleting the saved image', err);
                                 else console.log('Succesfully deleted image, returning true');
-                                
+
                                 // Run callback with truthy value
                                 cb(true);
-                                
+
                                 // Update posted status in Fbase
                                 var time = new Date().getTime();
                                 firebaseDB.ref('/' + randomIndex + '/posted').set(time, function(err) {
                                   if (err) console.log('Error setting posted value to true: ', err);
                                   else console.log('Set firebase item to posted');
                                 });
-                                
+
                               });
                             }
                           })
@@ -178,7 +177,7 @@ function postToTwitter(cb) {
                           console.log('Error posting image to twitter AFTER upload', err);
                           cb(false);
                         }
-                      })  
+                      })
                     }
                   })
                 }
@@ -197,7 +196,7 @@ function postToTwitter(cb) {
 }
 
 // Run the post to Twitter functions
-var interval = 43200000; // 30 seconds
+var interval = 30000000;
 setInterval(function() {
   postToTwitter(twitterPostCallback)
 }, interval)
@@ -211,7 +210,7 @@ app.get('/', function(req, res) {
 var http = require("http");
   setInterval(function() {
     http.get("http://yuag-bot.herokuapp.com");
-}, 300000); // every 5 minutes (300000)
+}, 14400000); // every 4 hours
 
 app.get('/addToDB', function(req, res) {
   function addToDB() {
@@ -219,21 +218,21 @@ app.get('/addToDB', function(req, res) {
       (function(i) {
         var url = 'https://artgallery.yale.edu/collections/objects/' + i;
         console.log(url)
-        
+
         request(url, function(err, response, html) {
-          
+
           console.log('Started request/received resp');
-          
+
           if (!err) {
             // Setup Cheerio to scrape
             var $ = cheerio.load(html);
             // Setup vars.
-            var imageUrl, 
-            artistName, 
-            pieceName, 
-            date, 
+            var imageUrl,
+            artistName,
+            pieceName,
+            date,
             description;
-            
+
             var json = {
               imageUrl : "",
               artistName : "",
@@ -241,13 +240,13 @@ app.get('/addToDB', function(req, res) {
               date : "",
               description : ""
             }
-            
+
             // #block-system-main is the main content wrapper for the piece content
             // Extract the values and data
             $('#block-system-main').filter(function() {
               // Set data to $(this)
               var data = $(this);
-              
+
               // Find the individual pieces of data
               // 1. Image URL
               imageUrl = data.find('.field-name-object-images img').attr('src')
@@ -263,9 +262,9 @@ app.get('/addToDB', function(req, res) {
               json.date = date
               // 5. Description
               description = data.find('.read-more-excerpt .field-item').text()
-              json.description = description        
+              json.description = description
             })
-            
+
             // Check if imageUrl is undefined
             if (json.imageUrl !== undefined && typeof(json.imageUrl) !== undefined) {
               firebaseDB.ref('/' + i).set(json, function(err) {
@@ -280,7 +279,7 @@ app.get('/addToDB', function(req, res) {
         })
       })(i)
     }
-  } addToDB() 
+  } addToDB()
 })
 
 // Make app listen + log
@@ -291,5 +290,3 @@ var server = app.listen(port, function(err) {
     console.log('App running at ', port)
   }
 });
-
-
